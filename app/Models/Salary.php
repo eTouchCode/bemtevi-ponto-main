@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Salary extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'amount',
+        'temporary_change',
+        'change_date',
+        'old_amount',
+    ];
+}

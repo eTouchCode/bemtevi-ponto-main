@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cálculo de Salário</title>
+        <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 20px;
+            }
+            th,
+            td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+            input {
+                width: 80px;
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            let updatedAmount = 0;
+            let subTotal = 0;
+            const FGTS_PERCENTAGE = 8.0;
+
+            const defaultValues = [
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: false, ir: true },
+                { inss: false, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: true, fgts: true, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: true },
+                { inss: true, fgts: true, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: true, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: false, fgts: false, ir: false },
+                { inss: false, fgts: false, ir: false },
+                { inss: false, fgts: false, ir: false },
+                { inss: false, fgts: false, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: false, ir: true },
+                { inss: true, fgts: false, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: true, ir: true },
+                { inss: true, fgts: false, ir: true },
+                { inss: false, fgts: true, ir: true },
+                { inss: true, fgts: false, ir: true },
+                { inss: false, fgts: false, ir: false },
+                { inss: false, fgts: false, ir: false },
+                { inss: false, fgts: false, ir: true },
+                { inss: false, fgts: false, ir: true },
+                { inss: false, fgts: false, ir: false },
+            ];
+
+            const rubrics = [
+                { description: "Abono (outros)", ...defaultValues[0] },
+                { description: "Abono de férias", ...defaultValues[1] },
+                {
+                    description:
+                        "Adicionais (Insalubridade, periculosidade, etc)",
+                    ...defaultValues[2],
+                },
+                {
+                    description:
+                        "Acidente de trabalho (Quinze primeiros dias de afastamento)",
+                    ...defaultValues[3],
+                },
+                {
+                    description:
+                        "Acidente de trabalho (Período de afastamento)",
+                    ...defaultValues[4],
+                },
+                {
+                    description:
+                        "Acidente de trabalho (complementação até o valor do salário)",
+                    ...defaultValues[5],
+                },
+                {
+                    description: "Ajuda de custo (Até 50% do salário)",
+                    ...defaultValues[6],
+                },
+                {
+                    description: "Ajuda de custo (Acima de 50% do salário)",
+                    ...defaultValues[7],
+                },
+                { description: "Auxílio-doença", ...defaultValues[8] },
+                {
+                    description:
+                        "Auxílio-doença (complementação até o valor do salário)",
+                    ...defaultValues[9],
+                },
+                {
+                    description: "Aviso prévio (Indenizado)",
+                    ...defaultValues[10],
+                },
+                {
+                    description: "Aviso prévio (trabalhado)",
+                    ...defaultValues[11],
+                },
+                { description: "Creche", ...defaultValues[12] },
+                { description: "Comissões", ...defaultValues[13] },
+                { description: "13º Salário 1º Parcela", ...defaultValues[14] },
+                { description: "13º Salário 2º Parcela", ...defaultValues[15] },
+                { description: "13º Salário", ...defaultValues[16] },
+                {
+                    description:
+                        "13º Salário (correspondente à projeção de aviso prévio)",
+                    ...defaultValues[17],
+                },
+                {
+                    description:
+                        "13º Salário (parcela de ajuste paga em janeiro do ano seguinte)",
+                    ...defaultValues[18],
+                },
+                {
+                    description: "Demissão Voluntária Incentivada",
+                    ...defaultValues[19],
+                },
+                {
+                    description: "Descanso Semanal Remunerado",
+                    ...defaultValues[20],
+                },
+                {
+                    description: "Diárias até 50% do salário",
+                    ...defaultValues[21],
+                },
+                { description: "Diárias acima de 50%", ...defaultValues[22] },
+                { description: "Estagiários", ...defaultValues[23] },
+                {
+                    description:
+                        "Férias (indenizadas + 1/3 constitucional ou proporcional)",
+                    ...defaultValues[24],
+                },
+                {
+                    description:
+                        "Férias normais (inclusive férias coletivas + 1/3 constitucional)",
+                    ...defaultValues[25],
+                },
+                { description: "Férias (dobra)", ...defaultValues[26] },
+                { description: "Gorjetas", ...defaultValues[27] },
+                { description: "Gratificação Ajustadas", ...defaultValues[28] },
+                { description: "Horas Extras", ...defaultValues[29] },
+                {
+                    description: "Indenizações por tempo de serviço",
+                    ...defaultValues[30],
+                },
+                { description: "Indenização em geral", ...defaultValues[31] },
+                { description: "Indenização adicional", ...defaultValues[32] },
+                { description: "Multa", ...defaultValues[33] },
+                {
+                    description: "Participação nos lucros e resultados",
+                    ...defaultValues[34],
+                },
+                { description: "Percentagens", ...defaultValues[35] },
+                { description: "Prêmios", ...defaultValues[36] },
+                { description: "Produtividade", ...defaultValues[37] },
+                { description: "Quebra de Caixa", ...defaultValues[38] },
+                {
+                    description: "Retiradas de Diretores Empregados",
+                    ...defaultValues[39],
+                },
+                {
+                    description: "Retiradas de Diretores Proprietários",
+                    ...defaultValues[40],
+                },
+                { description: "Salário-Família", ...defaultValues[41] },
+                { description: "Salário-Maternidade", ...defaultValues[42] },
+                {
+                    description: "Salário utilidade (Programas de alimentação)",
+                    ...defaultValues[43],
+                },
+                {
+                    description: "Salário utilidade (Plano educacional)",
+                    ...defaultValues[44],
+                },
+                {
+                    description: "Salário utilidade (Previdência complementar)",
+                    ...defaultValues[45],
+                },
+                {
+                    description:
+                        "Salário utilidade (Cobertura médica e/ou Odontológica)",
+                    ...defaultValues[46],
+                },
+                {
+                    description: "Salário utilidade (Prêmio de seguro de vida)",
+                    ...defaultValues[47],
+                },
+                {
+                    description: "Salário utilidade (Outros)",
+                    ...defaultValues[48],
+                },
+                { description: "Saldo de Salário", ...defaultValues[49] },
+                { description: "Serviço de Autônomo", ...defaultValues[50] },
+                {
+                    description: "Serviço Militar Obrigatório",
+                    ...defaultValues[51],
+                },
+                { description: "Transportador Autônomo", ...defaultValues[52] },
+                { description: "Utilidades", ...defaultValues[53] },
+                { description: "Vale-Transporte", ...defaultValues[54] },
+                { description: "Veículo do Emprego", ...defaultValues[55] },
+                {
+                    description: "Vestuários, equipamentos e outros acessórios",
+                    ...defaultValues[56],
+                },
+            ];
+            rubrics.forEach((elem) => {
+                console.log(`['name' => '${elem.description}', 'amount' => 0, 'percentageValue' => false, 'fgts' => ${elem.fgts}, 'inss' => ${elem.inss}, 'ir' => ${elem.ir}],`);
+            });
+
+            function generateHeaderTable() {
+                const headerTable = document.createElement("table");
+                const defaultValues = rubrics.map((rubric) => ({
+                    inss: rubric.inss,
+                    fgts: rubric.fgts,
+                    ir: rubric.ir,
+                }));
+
+                // Create header row
+                const headerRow = document.createElement("tr");
+                ["Salário", "INSS (%)", "FGTS (%)", "IR (%)"].forEach(
+                    (headerText) => {
+                        const th = document.createElement("th");
+                        th.textContent = headerText;
+                        headerRow.appendChild(th);
+                    }
+                );
+                headerTable.appendChild(headerRow);
+
+                // Create data row for percentages
+                const percentDataRow = document.createElement("tr");
+
+                // Salário input
+                const salarioTd = document.createElement("td");
+                const salarioInput = document.createElement("input");
+                salarioInput.type = "number";
+                salarioInput.step = "any";
+                salarioInput.id = "inputSalario";
+                salarioInput.addEventListener("input", updateValues);
+                salarioTd.appendChild(salarioInput);
+                percentDataRow.appendChild(salarioTd);
+
+                // INSS input
+                const inssTd = document.createElement("td");
+                const inssInputPercent = document.createElement("input");
+                inssInputPercent.type = "text"; // Change type to text to allow multiple digits
+                inssInputPercent.id = "inputInssPercent";
+                inssInputPercent.disabled = true;
+                inssTd.appendChild(inssInputPercent);
+                percentDataRow.appendChild(inssTd);
+
+                // FGTS input
+                const fgtsTd = document.createElement("td");
+                const fgtsInputPercent = document.createElement("input");
+                fgtsInputPercent.type = "number";
+                fgtsInputPercent.step = "any";
+                fgtsInputPercent.id = "inputFgtsPercent";
+                fgtsInputPercent.value = "8.00"; // Set default FGTS percentage to 8%
+                fgtsInputPercent.addEventListener("input", updateValues);
+                fgtsTd.appendChild(fgtsInputPercent);
+                percentDataRow.appendChild(fgtsTd);
+
+                // IR input
+                const irTd = document.createElement("td");
+                const irInputPercent = document.createElement("input");
+                irInputPercent.type = "text"; // Change type to text to allow multiple digits
+                irInputPercent.id = "inputIrPercent";
+                irInputPercent.disabled = true;
+                irTd.appendChild(irInputPercent);
+                percentDataRow.appendChild(irTd);
+
+                headerTable.appendChild(percentDataRow);
+
+                // Create data row for amounts
+                const amountDataRow = document.createElement("tr");
+
+                // Salário amount
+                const salarioAmountTd = document.createElement("td");
+                const salarioAmountSpan = document.createElement("span");
+                salarioAmountSpan.id = "salarioAmount";
+                salarioAmountTd.appendChild(salarioAmountSpan);
+                amountDataRow.appendChild(salarioAmountTd);
+
+                // INSS amount
+                const inssAmountTd = document.createElement("td");
+                const inssAmountSpan = document.createElement("span");
+                inssAmountSpan.id = "inssAmount";
+                inssAmountTd.appendChild(inssAmountSpan);
+                amountDataRow.appendChild(inssAmountTd);
+
+                // FGTS amount
+                const fgtsAmountTd = document.createElement("td");
+                const fgtsAmountSpan = document.createElement("span");
+                fgtsAmountSpan.id = "fgtsAmount";
+                fgtsAmountTd.appendChild(fgtsAmountSpan);
+                amountDataRow.appendChild(fgtsAmountTd);
+
+                // IR amount
+                const irAmountTd = document.createElement("td");
+                const irAmountSpan = document.createElement("span");
+                irAmountSpan.id = "irAmount";
+                irAmountTd.appendChild(irAmountSpan);
+                amountDataRow.appendChild(irAmountTd);
+
+                headerTable.appendChild(amountDataRow);
+
+                // Create Sub-Total row
+                const subTotalRow = document.createElement("tr");
+
+                // Sub-Total label
+                const subTotalLabelTd = document.createElement("td");
+                subTotalLabelTd.textContent = "Sub-Total";
+                subTotalRow.appendChild(subTotalLabelTd);
+
+                // Sub-Total amount
+                const subTotalAmountTd = document.createElement("td");
+                const subTotalAmountSpan = document.createElement("span");
+                subTotalAmountSpan.id = "subTotalAmount";
+                subTotalAmountTd.appendChild(subTotalAmountSpan);
+                subTotalRow.appendChild(subTotalAmountTd);
+
+                // Add empty cells for FGTS and IR
+                subTotalRow.appendChild(document.createElement("td"));
+                subTotalRow.appendChild(document.createElement("td"));
+
+                headerTable.appendChild(subTotalRow);
+
+                document.body.appendChild(headerTable);
+            }
+        </script>
+    </body>
+</html>
